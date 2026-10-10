@@ -23,7 +23,7 @@ train_dataset = train_dataset.prefetch(AUTOTUNE)
 validate_dataset = validate_dataset.prefetch(AUTOTUNE)
 
 model = tf.keras.Sequential([
-    layers.Input(shape=(128,128,3), batch_size=32),
+    layers.Input(shape=(64,64,3)),
     layers.Rescaling(1.0/255),
     layers.RandomFlip('horizontal'),
     layers.RandomRotation(0.05),
@@ -68,10 +68,23 @@ model = tf.keras.Sequential([
     layers.Flatten(),
     layers.Dense(128, activation='relu'),
     layers.Dropout(0.3),
-    layers.Dense(5)
+    layers.Dense(5,activation='softmax')
 ])
 
 print(model.summary())
 
 
+model.compile(
+    optimiser=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss = tf.keras.losses.CategoricalCrossentropy(),
+    metrics = ['accuracy']
+)
+
+early_stopping = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=4,
+    restore_best_weights=True
+)
+
+history = model.fit(train_dataset,validation_data= validate_dataset, epochs=20, callbacks =[early_stopping])
 
