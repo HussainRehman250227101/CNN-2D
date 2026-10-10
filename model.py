@@ -88,3 +88,21 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
 
 history = model.fit(train_dataset,validation_data= validate_dataset, epochs=20, callbacks =[early_stopping])
 
+# Load one image and resize it to match your model
+image = tf.keras.utils.load_img(
+    "dataset/test/cat/cat_0000.png",
+    target_size=(64, 64)
+)
+
+# Convert the image into a numerical array
+image_array = tf.keras.utils.img_to_array(image)
+
+# Add a batch dimension: (64, 64, 3) -> (1, 64, 64, 3)
+image_batch = tf.expand_dims(image_array, axis=0)
+
+# Get the five class probabilities from your model
+probabilities = model.predict(image_batch)
+probabilities = probabilities[0]
+# Find the index of the highest probability
+predicted_index = tf.argmax(probabilities).numpy()
+predicted_class = class_names[predicted_index]
